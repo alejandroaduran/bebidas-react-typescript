@@ -1,13 +1,17 @@
 import { StateCreator } from "zustand";
-import { getCategories, getRecipies } from "../services/RecipeService";
-import type { Categories, Drinks, SearchFilter } from "../types";
+import { getCategories, getRecipeById, getRecipies } from "../services/RecipeService";
+import type { Categories, Drink, Drinks, Recipe, SearchFilter } from "../types";
 
 
 export type recipeSliceType = {
     categories: Categories;
     drinks: Drinks;
+    selectedRecipe: Recipe;
+    modal: boolean;
     fetchCategories: () => Promise<void>;
     searchRecipes: (searchFilters: SearchFilter) => Promise<void>;
+    selectRecipe: (id: Drink["idDrink"]) => Promise<void>;
+    closeModal: () => void;
 }
 
 export const createRecipeSlice: StateCreator<recipeSliceType> = (set) => ({
@@ -15,9 +19,14 @@ export const createRecipeSlice: StateCreator<recipeSliceType> = (set) => ({
     categories: {
         drinks: []
     },
+
     drinks: {
         drinks: []
     },
+
+    selectedRecipe: {} as Recipe,
+
+    modal: false,
 
     fetchCategories: async () => {
         const categories = await getCategories()
@@ -33,6 +42,22 @@ export const createRecipeSlice: StateCreator<recipeSliceType> = (set) => ({
         console.log(drinks)
         set({
             drinks
+        })
+    },
+    selectRecipe: async (id) => {
+        //console.log(id)
+        const selectedRecipe = await getRecipeById(id)
+        console.log(selectedRecipe)
+        set({
+            selectedRecipe,
+            modal: true
+        })
+    },
+
+    closeModal: () => {
+        set({
+            modal: false,
+            selectedRecipe: {} as Recipe
         })
     }
 })
