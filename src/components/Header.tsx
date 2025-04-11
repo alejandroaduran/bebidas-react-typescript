@@ -1,8 +1,13 @@
-import { useEffect, useMemo } from "react"
+import { ChangeEvent, useEffect, useMemo, useState } from "react"
 import { useLocation, NavLink } from "react-router-dom"
 import { useAppStore } from "../stores/useAppStore"
 
 export default function Header() {
+
+    const[searchFilters, setSearchFilters] = useState({
+        ingredient: "",
+        category: ""
+    })
 
     const { pathname } = useLocation()
     /* console.log(location.pathname) */
@@ -12,11 +17,32 @@ export default function Header() {
 
     const fetchCategories = useAppStore((state) => state.fetchCategories)
     const categories = useAppStore((state) => state.categories)
+    const searchRecipes = useAppStore((state) => state.searchRecipes)
 
     useEffect(() => {
         fetchCategories()
         // getCategories()
     }, [])
+
+const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
+    setSearchFilters({
+        ...searchFilters,
+        [e.target.name]: e.target.value
+    
+    })
+}
+
+const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    // TODO validar
+    if(Object.values(searchFilters).includes("")) {
+        console.log("llena todos los campos")
+        return
+    }
+
+    //consultar recetas
+    searchRecipes(searchFilters)
+}
 
     return (
         <header className={isHome ? "bg-header bg-center bg-cover" : "bg-slate-800"}>
@@ -42,7 +68,9 @@ export default function Header() {
                 </div>
                 {isHome && (
                     <form action=""
-                        className="md:w-1/2 2xl:w-1/3 bg-orange-400 my-32 p-5 rounded-lg shadow-lg shadow-black/50 space-y-6">
+                        className="md:w-1/2 2xl:w-1/3 bg-orange-400 my-32 p-5 rounded-lg shadow-lg shadow-black/50 space-y-6"
+                        onSubmit={handleSubmit}
+                        >
                         <div className="space-y-4">
                             <label htmlFor="ingredient"
                                 className="block text-slate-200 font-bold text-lg mt-10 mb-5"
@@ -52,7 +80,10 @@ export default function Header() {
                                 type="text"
                                 name="ingredient"
                                 className="p-3 w-full rounded-lg focus:outline-none"
-                                placeholder="Nombre o Ingredientes" />
+                                placeholder="Nombre o Ingredientes" 
+                                onChange={handleChange}
+                                value={searchFilters.ingredient}
+                                />
                         </div>
 
                         <div className="space-y-4">
@@ -60,9 +91,11 @@ export default function Header() {
                                 className="block text-slate-200 font-bold text-lg mt-10 mb-5"
                             >Categoría</label>
                             <select
-                                id="ingredient"
-                                name="ingredient"
+                                id="category"
+                                name="category"
                                 className="p-3 w-full rounded-lg focus:outline-none"
+                                onChange={handleChange}
+                                value={searchFilters.category}
                             >
                                 <option value="">-- Selecciona una categoría --</option>
                                 {categories.drinks.map((category) => (
