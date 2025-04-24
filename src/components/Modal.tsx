@@ -7,17 +7,21 @@ export default function Modal() {
     const modal = useAppStore((state) => state.modal)
     const closeModal = useAppStore((state) => state.closeModal)
     const selectedRecipe = useAppStore((state) => state.selectedRecipe)
+
     const renderIngredients = () => {
-        const ingredients = Object.entries(selectedRecipe).filter(([key, value]) => key.includes("strIngredient") && value !== "" && value !== null)
-        const measures = Object.entries(selectedRecipe).filter(([key, value]) => key.includes("strMeasure") && value !== "" && value !== null)
+        const ingredients = Object.entries(selectedRecipe)
+            .filter(([key, value]) => key.includes("strIngredient") && value !== "" && value !== null);
+        const measures = Object.entries(selectedRecipe)
+            .filter(([key, value]) => key.includes("strMeasure") && value !== "" && value !== null);
 
         return ingredients.map((ingredient, index) => (
             <li key={index} className='text-lg'>
-                {ingredient[1]} - {measures[index][1]}
+                {ingredient[1]} - {measures[index]?.[1] || "Cantidad no especificada"}
             </li>
-        ))
-    }
+        ));
+    };
     const handleClickFavorite = useAppStore((state) => state.handleClickFavorite)
+    const favoriteExists = useAppStore((state) => state.favoriteExists)
 
     return (
         <>
@@ -79,7 +83,7 @@ export default function Modal() {
                                             className='w-full rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-8 mx-2 '
                                        onClick={()=> handleClickFavorite(selectedRecipe)}
                                        >
-                                            Agregar a favoritos
+                                            {favoriteExists(selectedRecipe.idDrink) ? "Eliminar de Favoritos" : "Agregar a Favoritos"}
                                         </button>
                                     </div>
                                 </Dialog.Panel>
