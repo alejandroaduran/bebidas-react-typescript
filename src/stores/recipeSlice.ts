@@ -15,7 +15,7 @@ export type RecipeSliceType = {
     closeModal: () => void;
 }
 
-export const createRecipeSlice: StateCreator<RecipeSliceType & FavoritesSliceType, [], [], RecipeSliceType> = (set, get, api) => ({
+export const createRecipeSlice: StateCreator<RecipeSliceType & FavoritesSliceType, [], [], RecipeSliceType> = (set) => ({
 
     categories: {
         drinks: []

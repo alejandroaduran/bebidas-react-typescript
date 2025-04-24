@@ -1,7 +1,6 @@
 import { ChangeEvent, useEffect, useMemo, useState } from "react"
 import { useLocation, NavLink } from "react-router-dom"
 import { useAppStore } from "../stores/useAppStore"
-import { createNotificationSlice } from "../stores/notificationSlice"
 
 export default function Header() {
 
