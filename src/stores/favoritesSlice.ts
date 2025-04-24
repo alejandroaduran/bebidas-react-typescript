@@ -1,6 +1,7 @@
 import { StateCreator } from "zustand";
 import { Recipe } from "../types";
 import { createRecipeSlice, RecipeSliceType } from "./recipeSlice";
+import { createNotificationSlice, NotificationSliceType } from "./notificationSlice";
 
 export type FavoritesSliceType = {
     favorites: Recipe[];
@@ -9,7 +10,7 @@ export type FavoritesSliceType = {
     loadfromStorage: () => void;
 }
 
-export const createFavoritesSlice: StateCreator<FavoritesSliceType & RecipeSliceType, [], [], FavoritesSliceType> = (set, get, api) => ({
+export const createFavoritesSlice: StateCreator<FavoritesSliceType & RecipeSliceType & NotificationSliceType, [], [], FavoritesSliceType> = (set, get, api) => ({
     favorites: [],
     handleClickFavorite: (recipe) => {
         //console.log(recipe)
@@ -21,6 +22,12 @@ export const createFavoritesSlice: StateCreator<FavoritesSliceType & RecipeSlice
             set((state) => ({
                 favorites: state.favorites.filter(favorite => favorite.idDrink !== recipe.idDrink)
             }))
+
+            createNotificationSlice(set, get, api).showNotification({
+                text: "Receta eliminada de favoritos",
+                error: false
+            })
+
         } else {
             console.log("no existe")
 
@@ -31,6 +38,10 @@ export const createFavoritesSlice: StateCreator<FavoritesSliceType & RecipeSlice
             set((state) => ({
                 favorites: [...state.favorites, recipe]
             }))
+            createNotificationSlice(set, get, api).showNotification({
+                text: "Receta agregada a favoritos",
+                error: false
+            })
         }
 
         createRecipeSlice(set, get, api).closeModal()
@@ -41,7 +52,7 @@ export const createFavoritesSlice: StateCreator<FavoritesSliceType & RecipeSlice
         return get().favorites.some(favorite => favorite.idDrink === id)
     },
 
-    loadfromStorage : () => {
+    loadfromStorage: () => {
         const storedFavorites = localStorage.getItem("favorites")
         if (storedFavorites) {
             set({

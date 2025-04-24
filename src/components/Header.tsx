@@ -1,10 +1,12 @@
 import { ChangeEvent, useEffect, useMemo, useState } from "react"
 import { useLocation, NavLink } from "react-router-dom"
 import { useAppStore } from "../stores/useAppStore"
+import { createNotificationSlice } from "../stores/notificationSlice"
 
 export default function Header() {
 
-    const[searchFilters, setSearchFilters] = useState({
+
+    const [searchFilters, setSearchFilters] = useState({
         ingredient: "",
         category: ""
     })
@@ -18,31 +20,36 @@ export default function Header() {
     const fetchCategories = useAppStore((state) => state.fetchCategories)
     const categories = useAppStore((state) => state.categories)
     const searchRecipes = useAppStore((state) => state.searchRecipes)
+    const showNotification = useAppStore((state) => state.showNotification)
 
     useEffect(() => {
         fetchCategories()
         // getCategories()
     }, [])
 
-const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
-    setSearchFilters({
-        ...searchFilters,
-        [e.target.name]: e.target.value
-    
-    })
-}
+    const handleChange = (e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>) => {
+        setSearchFilters({
+            ...searchFilters,
+            [e.target.name]: e.target.value
 
-const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    // TODO validar
-    if(Object.values(searchFilters).includes("")) {
-        console.log("llena todos los campos")
+        })
         return
     }
 
-    //consultar recetas
-    searchRecipes(searchFilters)
-}
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        if (Object.values(searchFilters).includes("")) {
+            console.log("llena todos los campos")
+            showNotification({
+                text: "Por favor llena todos los campos",
+                error: true
+            })
+            return
+        }
+
+        //consultar recetas
+        searchRecipes(searchFilters)
+    }
 
     return (
         <header className={isHome ? "bg-header bg-center bg-cover" : "bg-slate-800"}>
@@ -70,7 +77,7 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
                     <form action=""
                         className="md:w-1/2 2xl:w-1/3 bg-orange-400 my-32 p-5 rounded-lg shadow-lg shadow-black/50 space-y-6"
                         onSubmit={handleSubmit}
-                        >
+                    >
                         <div className="space-y-4">
                             <label htmlFor="ingredient"
                                 className="block text-slate-200 font-bold text-lg mt-10 mb-5"
@@ -80,10 +87,10 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
                                 type="text"
                                 name="ingredient"
                                 className="p-3 w-full rounded-lg focus:outline-none"
-                                placeholder="Nombre o Ingredientes" 
+                                placeholder="Nombre o Ingredientes"
                                 onChange={handleChange}
                                 value={searchFilters.ingredient}
-                                />
+                            />
                         </div>
 
                         <div className="space-y-4">
