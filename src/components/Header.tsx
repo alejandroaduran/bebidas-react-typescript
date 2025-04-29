@@ -70,6 +70,14 @@ export default function Header() {
                                 isActive ? "text-orange-600" : "text-slate-200"}
                         >
                             Favoritos</NavLink>
+
+                        <NavLink
+                            to="/generate"
+                            className={({ isActive }) =>
+                                isActive ? "text-orange-600" : "text-slate-200"}
+                        >
+                            Generar con IA</NavLink>
+
                     </nav>
                 </div>
                 {isHome && (
