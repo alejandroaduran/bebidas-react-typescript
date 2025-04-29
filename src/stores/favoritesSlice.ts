@@ -1,63 +1,48 @@
-import { StateCreator } from "zustand";
-import { Recipe } from "../types";
-import { createRecipeSlice, RecipeSliceType } from "./recipeSlice";
-import { createNotificationSlice, NotificationSliceType } from "./notificationSlice";
+import { StateCreator } from 'zustand'
+import { RecipesSlice, createRecipesSlice} from './recipeSlice'
+import { NotificationSlice, createNotificationSlice } from './notificationSlice'
+import { Drink } from '../types'
 
-export type FavoritesSliceType = {
-    favorites: Recipe[];
-    handleClickFavorite: (recipe: Recipe) => void;
-    favoriteExists: (id: Recipe['idDrink']) => boolean;
-    loadfromStorage: () => void;
+export type FavoritesSlice = {
+  favorites: Drink[],
+  handleClickFavorite: (drink: Drink) => void,
+  addFavorite: (drink: Drink) => void,
+  deleteFavorite: (id: string) => void,
+  favoriteExists: (id: string) => boolean,
+  loadFromStorage: () => void 
 }
 
-export const createFavoritesSlice: StateCreator<FavoritesSliceType & RecipeSliceType & NotificationSliceType, [], [], FavoritesSliceType> = (set, get, api) => ({
-    favorites: [],
-    handleClickFavorite: (recipe) => {
-        //console.log(recipe)
-        if (get().favorites.some(favorite => favorite.idDrink === recipe.idDrink)) {
-            console.log("ya existe")
-            /* set({
-                favorites: get().favorites.filter(favorite => favorite.idDrink !== recipe.idDrink)
-            }) */
-            set((state) => ({
-                favorites: state.favorites.filter(favorite => favorite.idDrink !== recipe.idDrink)
-            }))
-
-            createNotificationSlice(set, get, api).showNotification({
-                text: "Receta eliminada de favoritos",
-                error: false
-            })
-
-        } else {
-            console.log("no existe")
-
-            /* set({
-                favorites: [...get().favorites, recipe]
-            }) */
-
-            set((state) => ({
-                favorites: [...state.favorites, recipe]
-            }))
-            createNotificationSlice(set, get, api).showNotification({
-                text: "Receta agregada a favoritos",
-                error: false
-            })
-        }
-
-        createRecipeSlice(set, get, api).closeModal()
-        localStorage.setItem("favorites", JSON.stringify(get().favorites)) // Guardar en localStorage
-    },
-
-    favoriteExists: (id) => {
-        return get().favorites.some(favorite => favorite.idDrink === id)
-    },
-
-    loadfromStorage: () => {
-        const storedFavorites = localStorage.getItem("favorites")
-        if (storedFavorites) {
-            set({
-                favorites: JSON.parse(storedFavorites)
-            })
-        }
-    }
+export const createFavoritesSlice : StateCreator<RecipesSlice & FavoritesSlice & NotificationSlice, [], [], FavoritesSlice> = (set, get, api) =>  ({
+  favorites: [],
+  handleClickFavorite: (drink: Drink) => {
+      createRecipesSlice(set, get, api).closeModal()
+      if(get().favoriteExists(drink.idDrink) ) {
+        createNotificationSlice(set, get, api).showNotification({text: 'Se Eliminó de Favoritos', error: false})
+        get().deleteFavorite(drink.idDrink)
+      } else {
+        createNotificationSlice(set, get, api).showNotification({text: 'Se Agregó a Favoritos', error: false})
+        get().addFavorite(drink)
+      }
+  },
+  favoriteExists: (id) => {
+    return get().favorites.some(favorite => favorite.idDrink === id )
+  },
+  addFavorite: (drink) => {
+    set((state) => ({
+      favorites: [...state.favorites, drink],
+    }));
+    localStorage.setItem('favorites', JSON.stringify(get().favorites))
+  },
+  deleteFavorite: (id) => {
+    set((state) => ({
+      favorites: state.favorites.filter( favorite => favorite.idDrink !== id)
+    }))
+    localStorage.setItem('favorites', JSON.stringify(get().favorites))
+  },
+  loadFromStorage: () => {
+    const storedFavorites = localStorage.getItem('favorites');
+      if (storedFavorites) {
+        set({ favorites: JSON.parse(storedFavorites) });
+      }
+  },
 })

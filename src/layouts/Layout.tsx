@@ -1,33 +1,26 @@
-import { useEffect } from "react"
 import { Outlet } from "react-router-dom"
 import Header from "../components/Header"
 import Modal from "../components/Modal"
-import { useAppStore } from "../stores/useAppStore"
 import Notification from "../components/Notification"
+import { useEffect } from "react"
+import { useAppStore } from "../stores/useAppStore"
 
-export default function Layout() {
+export default function MainLayout() {
+  const loadFromStorage = useAppStore(state => state.loadFromStorage)
 
-    const loadFromStorage = useAppStore((state) => state.loadfromStorage)
+  useEffect(() => {
+    loadFromStorage()
+  }, [])
+  
+  return (
+    <div>
+        <Header />
+        <main className="container mx-auto  py-16">
+          <Outlet />
+        </main>
 
-
-    useEffect(() => {
-        loadFromStorage()
-    }, [])
-
-    return (
-
-        <>
-            <Header />
-
-            <main className="container mx-auto px-5 py-16">
-
-                <Outlet />
-
-            </main>
-
-            <Modal />
-            <Notification />
-        </>
-
-    )
+        <Modal />
+        <Notification />
+    </div>    
+  )
 }

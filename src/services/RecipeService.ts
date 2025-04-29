@@ -1,41 +1,34 @@
-import axios from "axios"
-import { CategoriesAPIResponseSchema, DrinksAPIResponse, RecipeAPIResponseSchema } from "../utils/recipes-schema"
-import { Drink, SearchFilter } from "../types"
+import api from "../lib/axios";
+import { CategoriesAPIResponseSchema, RecipeSchema, DrinksAPIResponse } from "../utils/recipes-schema";
+import { SearchRecipe } from "../types";
 
-export async function getCategories() {
 
-    //console.log("desde RecipeService.ts")
-    const url = "https://www.thecocktaildb.com/api/json/v1/1/list.php?c=list"
-    const { data } = await axios(url)
-
-    const result = CategoriesAPIResponseSchema.safeParse(data)
-    //console.log(result)
-
-    if (result.success) {
-        return result.data
-    }
-}
-
-export async function getRecipies(filters: SearchFilter) {
-    //   console.log(filters)
-    const url = `https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=${filters.ingredient}&c=${filters.category}`
-    const { data } = await axios(url)
-    //console.log(data)
-    const result = DrinksAPIResponse.safeParse(data)
-    //    console.log(result)
-    if (result.success) {
-        return result.data
-    }
-
-    
-}
-export async function getRecipeById(id: Drink["idDrink"]) {
-    const url = `https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${id}`
-    const { data } = await axios(url)
-    //console.log(data)
-    const result = RecipeAPIResponseSchema.safeParse(data.drinks[0])
-    //console.log(result)
-    if (result.success) {
-        return result.data
-    }
+export default {
+    async getCategories() {
+        const url = '/list.php?c=list'
+        const { data } = await api(url)
+        // Validar con ZOD
+        const result = CategoriesAPIResponseSchema.safeParse(data)
+        if(result.success) {
+            return result.data
+        }
+    },
+    async searchRecipes(filters: SearchRecipe) {
+        const url = `/filter.php?c=${filters.category}&i=${filters.ingredient}`
+        const { data } = await api(url)
+        const result = DrinksAPIResponse.safeParse(data)
+        if(result.success) {
+          return result.data
+        }
+    },
+    async getRecipeById(id: SearchRecipe['ingredient']) {
+        const url = `/lookup.php?i=${id}`
+        const { data } = await api(url)
+        // console.log(data.drinks[0])
+        const result = RecipeSchema.safeParse(data.drinks[0])
+        // console.log(result)
+        if(result.success) {
+          return result.data
+        }
+    } 
 }

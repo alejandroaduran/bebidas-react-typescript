@@ -12,7 +12,7 @@ export default function AppRouter() {
             <Routes>
                 <Route element={<Layout />}>
                     <Route path="/" element={<IndexPage />} index />
-                    <Route path="/favoritos" element={
+                    <Route path="/favorites" element={
                         <Suspense fallback={<div>Loading...</div>}>
                             <FavoritesPage />
                         </Suspense>
